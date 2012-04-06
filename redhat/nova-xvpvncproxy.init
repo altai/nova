@@ -1,32 +1,31 @@
 #!/bin/bash
 
 #
-# nova-metadata      OpenStack Nova Metadata Server
+# nova-xvpvncproxy OpenStack Nova Console VNC Proxy
 #
 # chkconfig: 2345 96 04
-# description: At the heart of the cloud framework is an Metadata Server.
+# description: OpenStack Nova Console VNC Proxy Server
 #
 # config: /etc/nova/nova.conf
-# config: /etc/nova/nova-api.conf
-# pidfile: /var/run/nova/nova-api.pid
+# pidfile: /var/run/nova/nova-xvpvncproxy.pid
 
 ### BEGIN INIT INFO
-# Provides: nova-metadata
+# Provides: nova-xvpvncproxy
 # Required-Start: $local_fs $network $syslog
 # Required-Stop: $local_fs $syslog
 # Should-Start: $syslog
 # Should-Stop: $network $syslog
 # Default-Start: 3 4 5
 # Default-Stop: 0 2 1 6
-# Short-Description: OpenStack Nova Metadata Server
-# Description: At the heart of the cloud framework is an Metadata Server.
+# Short-Description: OpenStack Nova Console VNC Proxy
+# Description: OpenStack Nova Console VNC Proxy Server
 ### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions
 
-prog="OpenStack Nova Metadata Server"
-suffix="metadata"
+prog="OpenStack Nova VNC Proxy"
+suffix="xvpvncproxy"
 flgfile=/etc/nova/nova.conf
 logfile=/var/log/nova/nova-$suffix.log
 pidfile=/var/run/nova/nova-$suffix.pid
@@ -46,7 +45,7 @@ start() {
 
     echo -n "Starting $prog: "
     cd /var/lib/nova
-    /sbin/start-stop-daemon --start -b -c nova:nobody --make-pidfile --pidfile $pidfile --exec $binfile -- --flagfile=$flgfile --logfile=$logfile --pidfile=$pidfile
+    /sbin/start-stop-daemon --start -b --make-pidfile --pidfile $pidfile --exec $binfile -- --flagfile=$flgfile --logfile=$logfile --pidfile=$pidfile
     sleep 1
 
     __pids_var_run "$binfile" "$pidfile"

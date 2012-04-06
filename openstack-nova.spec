@@ -1,14 +1,16 @@
 %global prj nova
 %global with_doc 0
 %global short_name openstack-nova
+%global os_release essex
 
 %if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %endif
 
-Name:             openstack-nova-essex
+Name:             %{short_name}-%{os_release}
 Version:          2012.1
 Release:          5
+Epoch:            1
 Summary:          OpenStack Compute (nova)
 
 Group:            Development/Languages
@@ -28,13 +30,19 @@ Source15:         %{prj}-scheduler.init
 Source16:         %{prj}-volume.init
 Source17:         %{prj}-direct-api.init
 Source18:         %{prj}-ajax-console-proxy.init
-Source19:         %{prj}-vncproxy.init
+Source19:         %{prj}-xvpvncproxy.init
 
 Source20:         %{prj}-sudoers
 Source21:         %{short_name}-polkit.pkla
 Source22:         %{short_name}-rhel-ifc-template
 Source23:         %{prj}.conf
-Source24:         %{prj}-metadata.init
+Source24:         %{prj}-api-metadata.init
+Source25:         %{prj}-api-os-compute.init
+Source26:         %{prj}-api-os-volume.init
+Source27:         %{prj}-api-metadata.init
+Source28:         api-paste.ini
+Source29:         %{prj}-cert.init
+
 
 BuildRoot:        %{_tmppath}/nova-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -57,7 +65,7 @@ BuildRequires:    python-webob
 BuildRequires:    intltool
 
 
-Requires:         python-nova-essex  = %{version}-%{release}
+Requires:         python-nova-%{os_release}  = %{epoch}:%{version}-%{release}
 Requires:         sudo
 
 Requires(post):   chkconfig grep sudo libselinux-utils
@@ -66,10 +74,10 @@ Requires(preun):  chkconfig
 Requires(pre):    shadow-utils qemu-kvm
 
 Obsoletes:        %{short_name}-instancemonitor
-Obsoletes:        %{name}-nova-cc-config
-Obsoletes:        %{name}-compute-config
+Obsoletes:        %{short_name}-nova-cc-config
+Obsoletes:        %{short_name}-compute-config
 
-Conflicts:        openstack-nova =< 2011.3.2
+Conflicts:        %{short_name} =< 2011.3.2
 
 %description
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
@@ -86,18 +94,17 @@ toolkit (the same as Python itself) for code and user documentation.
 Summary:          OpenStack Nova full node installation
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
-Requires:   %{name}-api = %{version}-%{release}
-Requires:   %{name}-compute = %{version}-%{release}
-Requires:   %{name}-network = %{version}-%{release}
-Requires:   %{name}-objectstore = %{version}-%{release}
-Requires:   %{name}-scheduler = %{version}-%{release}
-Requires:   %{name}-volume = %{version}-%{release}
-Requires:   openstack-essex-client = %{version}
-Requires:   openstack-essex-glance = %{version}
-#Requires:         openstack-glance-doc = %{version} # shouldn`t have this dep
+Requires:   %{name} = %{epoch}:%{version}-%{release}
+Requires:   %{name}-api = %{epoch}:%{version}-%{release}
+Requires:   %{name}-compute = %{epoch}:%{version}-%{release}
+Requires:   %{name}-network = %{epoch}:%{version}-%{release}
+Requires:   %{name}-objectstore = %{epoch}:%{version}-%{release}
+Requires:   %{name}-scheduler = %{epoch}:%{version}-%{release}
+Requires:   %{name}-volume = %{epoch}:%{version}-%{release}
+Requires:   openstack-client-%{os_release} = %{epoch}:%{version}-%{release}
+Requires:   openstack-glance-%{os_release} = %{epoch}:%{version}-%{release}
 %if 0%{?with_doc}
-Requires:   %{name}-doc = %{version}-%{release}
+Requires:   %{name}-doc = %{epoch}:%{version}-%{release}
 %endif
 
 %description      node-full
@@ -108,16 +115,16 @@ configuration.
 Summary:          OpenStack Nova compute node installation
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
-Requires:   %{name}-compute = %{version}-%{release}
-Requires:   %{name}-network = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
+Requires:   %{name}-compute = %{epoch}:%{version}-%{release}
+Requires:   %{name}-network = %{epoch}:%{version}-%{release}
 Requires:         MySQL-python
 
 %description      node-compute
 This package installs compute set of OpenStack Nova packages and Compute node
 configuration.
 
-%package -n       python-nova-essex
+%package -n       python-nova-%{os_release}
 Summary:          Nova Python libraries
 Group:            Applications/System
 
@@ -146,8 +153,8 @@ Requires:         python-tornado
 #Requires:         python-twisted-web >= 10.1.0
 Requires:         python-webob
 Requires:         python-netaddr
-Requires:         python-glance
-Requires:         python-novaclient-essex = %{version}
+Requires:         python-glance-%{os_release}
+Requires:         python-novaclient-%{os_release} = %{epoch}:%{version}-%{release}
 Requires:         python-lxml
 Requires:         python-sqlalchemy-migrate
 Requires:         radvd
@@ -159,8 +166,9 @@ Requires:         socat
 Requires:         coreutils
 Requires:         python-libguestfs >= 1.7.17
 Requires:         python-kombu
+Requires:         python-iso8601
 
-%description -n   python-nova-essex
+%description -n   python-nova-%{os_release}
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
 built to match the popular AWS EC2 and S3 APIs. It is written in Python, using
 the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
@@ -172,7 +180,7 @@ This package contains the %{name} Python library.
 Summary:          A nova API server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 
 %description      api
@@ -187,7 +195,7 @@ This package contains the %{name} API Server.
 Summary:          A nova compute server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 Requires:         libvirt-python
 Requires:         libvirt >= 0.8.7
@@ -208,7 +216,7 @@ This package contains the %{name} Compute Worker.
 Summary:          A nova network server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 
 %description      network
@@ -219,15 +227,14 @@ protocol, and the Redis KVS.
 
 This package contains the %{name} Network Controller.
 
-%package          vncproxy
-Summary:          A nova vncproxy server
+%package          xvpvncproxy
+Summary:          A nova xvpvncproxy server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
-Requires:         openstack-essex-noVNC >= %{version}
 
-%description      vncproxy
+%description      xvpvncproxy
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
 built to match the popular AWS EC2 and S3 APIs. It is written in Python, using
 the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
@@ -239,7 +246,7 @@ This package contains the %{name} VNC proxy.
 Summary:          A nova objectstore server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 
 %description      objectstore
@@ -254,7 +261,7 @@ This package contains the %{name} object store server.
 Summary:          A nova scheduler server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 
 %description      scheduler
@@ -269,7 +276,7 @@ This package contains the %{name} Scheduler.
 Summary:          A nova volume server
 Group:            Applications/System
 
-Requires:   %{name} = %{version}-%{release}
+Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:         start-stop-daemon
 
 %description      volume
@@ -338,9 +345,8 @@ install -p -D -m 755 %{SOURCE14} %{buildroot}%{_initrddir}/%{prj}-objectstore
 install -p -D -m 755 %{SOURCE15} %{buildroot}%{_initrddir}/%{prj}-scheduler
 install -p -D -m 755 %{SOURCE16} %{buildroot}%{_initrddir}/%{prj}-volume
 install -p -D -m 755 %{SOURCE17} %{buildroot}%{_initrddir}/%{prj}-direct-api
-install -p -D -m 755 %{SOURCE18} %{buildroot}%{_initrddir}/%{prj}-ajax-console-proxy
-install -p -D -m 755 %{SOURCE19} %{buildroot}%{_initrddir}/%{prj}-vncproxy
-install -p -D -m 755 %{SOURCE24} %{buildroot}%{_initrddir}/%{prj}-metadata
+install -p -D -m 755 %{SOURCE19} %{buildroot}%{_initrddir}/%{prj}-xvpvncproxy
+install -p -D -m 755 %{SOURCE28} %{buildroot}%{_initrddir}/%{prj}-cert
 
 
 # Install sudoers
@@ -360,6 +366,9 @@ install -p -D -m 644 nova/virt/libvirt.xml.template %{buildroot}%{_datarootdir}/
 #install nova.conf
 install -p -D -m 600 %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/nova.conf
 
+#Install api-paste
+install -p -D -m 600 %{SOURCE28} %{buildroot}%{_sysconfdir}/nova/api-paste.ini
+
 # Network configuration templates for injection engine
 install -d -m 755 %{buildroot}%{_datarootdir}/nova/interfaces
 #install -p -D -m 644 nova/virt/interfaces.template %{buildroot}%{_datarootdir}/nova/interfaces/interfaces.ubuntu.template
@@ -371,10 +380,6 @@ find %{buildroot}%{_sharedstatedir}/nova/CA -name .placeholder -delete
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d
 install -p -D -m 644 %{SOURCE21} %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-%{short_name}.pkla
-
-# Fixing ajaxterm installation
-mv %{buildroot}%{_datarootdir}/nova/euca-get-ajax-console %{buildroot}%{_bindir}
-rm -fr %{buildroot}%{_datarootdir}/nova/{install_venv.py,nova-debug,pip-requires,clean-vlans,with_venv.sh,esx} %{buildroot}%{_datarootdir}/nova/ajaxterm/configure*
 
 # Remove unneeded in production stuff
 rm -fr %{buildroot}%{python_sitelib}/run_tests.*
@@ -451,16 +456,16 @@ if [ $1 -eq 1 ] ; then
     /sbin/service %{prj}-network condrestart
 fi
 
-# vncproxy
+# xvpvncproxy
 
-%preun vncproxy
+%preun xvpvncproxy
 if [ $1 -eq 0 ] ; then
-    /sbin/service %{prj}-vncproxy stop >/dev/null 2>&1
+    /sbin/service %{prj}-xvpvncproxy stop >/dev/null 2>&1
 fi
 
-%postun vncproxy
+%postun xvpvncproxy
 if [ $1 -eq 1 ] ; then
-    /sbin/service %{prj}-vncproxy condrestart
+    /sbin/service %{prj}-xvpvncproxy condrestart
 fi
 
 # objectstore
@@ -515,6 +520,7 @@ fi
 %{_bindir}/stack
 %{_bindir}/nova-rootwrap
 %{_bindir}/nova-all
+%{_bindir}/nova-debug
 
 %{_datarootdir}/nova
 %defattr(-,nova,nobody,-)
@@ -526,14 +532,14 @@ fi
 %{_sharedstatedir}/nova/networks
 %{_sharedstatedir}/nova/tmp
 
-%files vncproxy
+%files xvpvncproxy
 %defattr(-,root,root,-)
 %{_bindir}/nova-xvpvncproxy
 %{_initrddir}/%{prj}-xvpvncproxy
 #%doc %{_sharedstatedir}/nova/noVNC/LICENSE.txt
 #%doc %{_sharedstatedir}/nova/noVNC/README.md
 
-%files -n python-nova-essex
+%files -n python-nova-%{os_release}
 %defattr(-,root,root,-)
 %doc LICENSE
 %{python_sitelib}/nova
@@ -544,11 +550,15 @@ fi
 %{_bindir}/%{prj}-api
 %{_bindir}/%{prj}-api-ec2
 %{_bindir}/%{prj}-direct-api
+%{_bindir}/%{prj}-cert
+%{_bindir}/%{prj}-metadata
+%{_bindir}/%{prj}-api-os-compute
+%{_bindir}/%{prj}-api-os-volume
+#%{_bindir}/%{prj}-api-metadata
+#%{_bindir}/%{prj}-ajax-console-proxy
 %{_initrddir}/%{prj}-api
 %{_initrddir}/%{prj}-direct-api
-%{_initrddir}/%{prj}-api-os-compute
-%{_initrddir}/%{prj}-api-os-volume
-%{_initrddir}/%{prj}-api-metadata
+
 %defattr(-,nova,nobody,-)
 %config(noreplace) %{_sysconfdir}/nova/api-paste.ini
 %config(noreplace) %{_sysconfdir}/nova/nova.conf
@@ -560,7 +570,6 @@ fi
 %{_bindir}/nova-compute
 %{_initrddir}/%{prj}-compute
 %{_initrddir}/%{prj}-cert
-%{_datarootdir}/nova/ajaxterm
 
 %files network
 %defattr(-,root,root,-)

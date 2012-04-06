@@ -1,31 +1,40 @@
 #!/bin/bash
 
 #
-# nova-vncproxy OpenStack Nova Console VNC Proxy
+# nova-api      OpenStack Nova API OS api-os-compute Server
 #
 # chkconfig: 2345 96 04
-# description: OpenStack Nova Console VNC Proxy Server
+# description: At the heart of the cloud framework is an API OS api-os-compute Server. \
+#              This API Server makes command and control of the      \
+#              hypervisor, storage, and networking programmatically  \
+#              available to users in realization of the definition   \
+#              of cloud computing.
 #
 # config: /etc/nova/nova.conf
-# pidfile: /var/run/nova/nova-vncproxy.pid
+# config: /etc/nova/nova-api.conf
+# pidfile: /var/run/nova/nova-api.pid
 
 ### BEGIN INIT INFO
-# Provides: nova-vncproxy
+# Provides: nova-api
 # Required-Start: $local_fs $network $syslog
 # Required-Stop: $local_fs $syslog
 # Should-Start: $syslog
 # Should-Stop: $network $syslog
 # Default-Start: 3 4 5
 # Default-Stop: 0 2 1 6
-# Short-Description: OpenStack Nova Console VNC Proxy
-# Description: OpenStack Nova Console VNC Proxy Server
+# Short-Description: OpenStack Nova API Server
+# Description: At the heart of the cloud framework is an API Server.
+#              This API Server makes command and control of the
+#              hypervisor, storage, and networking programmatically
+#              available to users in realization of the definition
+#              of cloud computing.
 ### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions
 
-prog="OpenStack Nova VNC Proxy"
-suffix="vncproxy"
+prog="OpenStack Nova API Server"
+suffix="api-os-compute"
 flgfile=/etc/nova/nova.conf
 logfile=/var/log/nova/nova-$suffix.log
 pidfile=/var/run/nova/nova-$suffix.pid
@@ -45,7 +54,7 @@ start() {
 
     echo -n "Starting $prog: "
     cd /var/lib/nova
-    /sbin/start-stop-daemon --start -b --make-pidfile --pidfile $pidfile --exec $binfile -- --flagfile=$flgfile --logfile=$logfile --pidfile=$pidfile
+    /sbin/start-stop-daemon --start -b -c nova:nobody --make-pidfile --pidfile $pidfile --exec $binfile -- --flagfile=$flgfile --logfile=$logfile --pidfile=$pidfile
     sleep 1
 
     __pids_var_run "$binfile" "$pidfile"
