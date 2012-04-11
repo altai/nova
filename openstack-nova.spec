@@ -63,7 +63,7 @@ BuildRequires:    python-sqlalchemy
 BuildRequires:    python-tornado
 BuildRequires:    python-webob
 BuildRequires:    intltool
-
+BuildRequires:    python-distutils-extra >= 1:2.29
 
 Requires:         python-nova-%{os_release}  = %{epoch}:%{version}-%{release}
 Requires:         sudo
@@ -149,8 +149,6 @@ Requires:         python-routes >= 1.12.3
 Requires:         python-sqlalchemy >= 0.6
 Requires:         python-suds >= 0.4.0
 Requires:         python-tornado
-#Requires:         python-twisted-core >= 10.1.0
-#Requires:         python-twisted-web >= 10.1.0
 Requires:         python-webob
 Requires:         python-netaddr
 Requires:         python-glance-%{os_release}
@@ -166,7 +164,19 @@ Requires:         socat
 Requires:         coreutils
 Requires:         python-libguestfs >= 1.7.17
 Requires:         python-kombu
+
+#Arrived with essex
 Requires:         python-iso8601
+Requires:         python-crypto
+Requires:         MySQL-python
+Requires:         python-qpid
+Requires:         ipython
+Requires:         bpython
+Requires:         python-paramiko
+Requires:         python-ldap
+Requires:         python-memcached
+
+
 
 %description -n   python-nova-%{os_release}
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
@@ -510,6 +520,9 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/sudoers.d/%{name}
 %config(noreplace) %{_sysconfdir}/nova/nova.conf
+%config(noreplace) %{_sysconfdir}/nova/nova.conf.sample
+%config(noreplace) %{_sysconfdir}/nova/logging_sample.conf
+%config(noreplace) %{_sysconfdir}/nova/policy.json
 %dir %attr(0755, nova, root) %{_localstatedir}/log/nova
 %dir %attr(0755, nova, root) %{_localstatedir}/run/nova
 %{_bindir}/instance-usage-audit
