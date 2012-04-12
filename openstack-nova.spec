@@ -356,7 +356,7 @@ install -p -D -m 755 %{SOURCE15} %{buildroot}%{_initrddir}/%{prj}-scheduler
 install -p -D -m 755 %{SOURCE16} %{buildroot}%{_initrddir}/%{prj}-volume
 install -p -D -m 755 %{SOURCE17} %{buildroot}%{_initrddir}/%{prj}-direct-api
 install -p -D -m 755 %{SOURCE19} %{buildroot}%{_initrddir}/%{prj}-xvpvncproxy
-install -p -D -m 755 %{SOURCE28} %{buildroot}%{_initrddir}/%{prj}-cert
+install -p -D -m 755 %{SOURCE29} %{buildroot}%{_initrddir}/%{prj}-cert
 
 
 # Install sudoers
