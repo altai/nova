@@ -170,8 +170,6 @@ Requires:         python-iso8601
 Requires:         python-crypto
 Requires:         MySQL-python
 Requires:         python-qpid
-Requires:         ipython
-Requires:         bpython
 Requires:         python-paramiko
 Requires:         python-ldap
 Requires:         python-memcached
