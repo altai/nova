@@ -380,7 +380,7 @@ install -p -D -m 600 %{SOURCE28} %{buildroot}%{_sysconfdir}/nova/api-paste.ini
 # Network configuration templates for injection engine
 install -d -m 755 %{buildroot}%{_datarootdir}/nova/interfaces
 #install -p -D -m 644 nova/virt/interfaces.template %{buildroot}%{_datarootdir}/nova/interfaces/interfaces.ubuntu.template
-install -p -D -m 644 %{SOURCE22} %{buildroot}%{_datarootdir}/nova/interfaces/interfaces.rhel.template
+install -p -D -m 644 %{SOURCE22} %{buildroot}%{_datarootdir}/nova/interfaces.template
 
 # Clean CA directory
 find %{buildroot}%{_sharedstatedir}/nova/CA -name .gitignore -delete
