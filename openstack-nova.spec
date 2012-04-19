@@ -335,6 +335,10 @@ rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 %endif
 
 # Setup directories
+#Essex
+install -d -m 755 %{buildroot}%{_localstatedir}/run/nova
+install -d -m 755 %{buildroot}%{_localstatedir}/run/nova/lock
+
 install -d -m 755 %{buildroot}%{_sysconfdir}/nova
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/images
@@ -363,8 +367,6 @@ install -p -D -m 440 %{SOURCE20} %{buildroot}%{_sysconfdir}/sudoers.d/%{name}
 # Install logrotate
 install -p -D -m 644 %{SOURCE6} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-# Install pid directory
-install -d -m 755 %{buildroot}%{_localstatedir}/run/nova
 
 # Install template files
 install -p -D -m 644 nova/auth/novarc.template %{buildroot}%{_datarootdir}/nova/novarc.template
