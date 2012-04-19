@@ -167,9 +167,8 @@ Requires:         python-kombu
 
 #Arrived with essex
 Requires:         python-iso8601
-Requires:         python-crypto
+Requires:         python-pycrypto
 Requires:         MySQL-python
-Requires:         python-qpid
 Requires:         python-paramiko
 Requires:         python-ldap
 Requires:         python-memcached
