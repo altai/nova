@@ -211,6 +211,7 @@ Requires:         libxml2-python
 Requires:         rabbitmq-server
 Requires:         python-cheetah
 Requires:         dmidecode
+Requires:         libguestfs-mount
 
 %description      compute
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
