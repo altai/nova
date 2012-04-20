@@ -337,7 +337,7 @@ rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 # Setup directories
 #Essex
 install -d -m 755 %{buildroot}%{_localstatedir}/run/nova
-install -d -m 755 %{buildroot}%{_localstatedir}/run/nova/lock
+install -d -m 755 %{buildroot}%{_localstatedir}/lock/nova
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/nova
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova
@@ -525,6 +525,7 @@ fi
 %config(noreplace) %{_sysconfdir}/nova/policy.json
 %dir %attr(0755, nova, root) %{_localstatedir}/log/nova
 %dir %attr(0755, nova, root) %{_localstatedir}/run/nova
+%dir %attr(0755, nova, root) %{_localstatedir}/lock/nova 
 %{_bindir}/instance-usage-audit
 %{_bindir}/nova-console
 %{_bindir}/nova-consoleauth
