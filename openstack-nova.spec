@@ -374,8 +374,9 @@ install -p -D -m 644 nova/auth/novarc.template %{buildroot}%{_datarootdir}/nova/
 install -p -D -m 644 nova/cloudpipe/client.ovpn.template %{buildroot}%{_datarootdir}/nova/client.ovpn.template
 install -p -D -m 644 nova/virt/libvirt.xml.template %{buildroot}%{_datarootdir}/nova/libvirt.xml.template
 
-#install nova.conf
-install -p -D -m 600 %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/nova.conf
+#install nova-api.conf nova-compute.conf
+install -p -D -m 600 %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/nova-api.conf
+install -p -D -m 600 %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/nova-compute.conf
 
 #Install api-paste
 install -p -D -m 600 %{SOURCE28} %{buildroot}%{_sysconfdir}/nova/api-paste.ini
@@ -520,7 +521,7 @@ fi
 %doc README.rst README.rhel6
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/sudoers.d/%{name}
-%config(noreplace) %{_sysconfdir}/nova/nova.conf
+%config(noreplace) %{_sysconfdir}/nova/nova-compute.conf
 %config(noreplace) %{_sysconfdir}/nova/nova.conf.sample
 %config(noreplace) %{_sysconfdir}/nova/logging_sample.conf
 %config(noreplace) %{_sysconfdir}/nova/policy.json
@@ -576,7 +577,7 @@ fi
 
 %defattr(-,nova,nobody,-)
 %config(noreplace) %{_sysconfdir}/nova/api-paste.ini
-%config(noreplace) %{_sysconfdir}/nova/nova.conf
+%config(noreplace) %{_sysconfdir}/nova/nova-api.conf
 #mv /usr/bin/nova{-api,}-metadata
 
 %files compute
