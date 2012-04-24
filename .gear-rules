@@ -7,4 +7,5 @@ copy: redhat/openstack-nova.logrotate
 copy: nova.conf
 copy: etc/nova/api-paste.ini
 copy: nova-sudoers
+copy: *.patch
 tar.gz: . name=nova-@version@ base=nova-@version@

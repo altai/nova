@@ -43,6 +43,8 @@ Source27:         %{prj}-api-metadata.init
 Source28:         api-paste.ini
 Source29:         %{prj}-cert.init
 
+Patch0001:        0001-fix-useexisting-deprecation-warnings.patch
+
 
 BuildRoot:        %{_tmppath}/nova-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -314,6 +316,8 @@ This package contains documentation files for %{name}.
 
 %prep
 %setup -q -n nova-%{version}
+
+%patch0001 -p1
 
 install %{SOURCE1} README.rhel6
 
