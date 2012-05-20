@@ -43,6 +43,7 @@
     "compute_extension:keypairs": [],
     "compute_extension:multinic": [],
     "compute_extension:networks": [["rule:admin_api"]],
+    "compute_extension:networks:view": [],
     "compute_extension:quotas": [],
     "compute_extension:rescue": [],
     "compute_extension:security_groups": [],
