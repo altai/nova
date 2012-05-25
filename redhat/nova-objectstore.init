@@ -33,16 +33,6 @@ lckfile=/var/lock/subsys/nova-$suffix
 binfile=/usr/bin/nova-$suffix
 
 start() {
-    __pids_var_run "$binfile" "$pidfile"
-    retval=$?
-    if [ $retval -eq 0 ]; then
-        cmd=${binfile##*/}
-        echo -n "$cmd is already running (pid $pid)";
-        passed
-        echo
-        return
-    fi
-
     echo -n "Starting $prog: "
     cd /var/lib/nova
     /sbin/start-stop-daemon --start -b -c nova:nobody --make-pidfile --pidfile $pidfile --exec $binfile -- --flagfile=$flgfile --logfile=$logfile
