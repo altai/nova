@@ -32,15 +32,13 @@ Source17:         %{prj}-direct-api.init
 Source18:         %{prj}-ajax-console-proxy.init
 Source19:         %{prj}-xvpvncproxy.init
 
-Source20:         %{prj}-sudoers
+Source20:         nova-sudoers
 Source21:         %{short_name}-polkit.pkla
 Source22:         %{short_name}-rhel-ifc-template
-Source23:         %{prj}.conf
-Source24:         %{prj}-api-metadata.init
+Source23:         nova.conf
 Source25:         %{prj}-api-os-compute.init
 Source26:         %{prj}-api-os-volume.init
-Source27:         %{prj}-api-metadata.init
-Source28:         api-paste.ini
+#Source28:         api-paste.ini
 Source29:         %{prj}-cert.init
 
 Patch0001:        0001-fix-useexisting-deprecation-warnings.patch
@@ -345,6 +343,8 @@ install -d -m 755 %{buildroot}%{_localstatedir}/run/nova
 install -d -m 755 %{buildroot}%{_localstatedir}/lock/nova
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/nova
+install -p -D -m 600 etc/nova/* %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/
+
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/images
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/instances
@@ -377,12 +377,6 @@ install -p -D -m 644 %{SOURCE6} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 install -p -D -m 644 nova/auth/novarc.template %{buildroot}%{_datarootdir}/nova/novarc.template
 install -p -D -m 644 nova/cloudpipe/client.ovpn.template %{buildroot}%{_datarootdir}/nova/client.ovpn.template
 install -p -D -m 644 nova/virt/libvirt.xml.template %{buildroot}%{_datarootdir}/nova/libvirt.xml.template
-
-#install nova.conf
-install -p -D -m 600 %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/nova.conf
-
-#Install api-paste
-install -p -D -m 600 %{SOURCE28} %{buildroot}%{_sysconfdir}/nova/api-paste.ini
 
 # Network configuration templates for injection engine
 install -d -m 755 %{buildroot}%{_datarootdir}/nova/interfaces
@@ -524,13 +518,18 @@ fi
 %doc README.rst README.rhel6
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/sudoers.d/%{name}
+
+%defattr(-,nova,nobody,-)
+%dir %{_sysconfdir}/nova
 %config(noreplace) %{_sysconfdir}/nova/nova.conf
 %config(noreplace) %{_sysconfdir}/nova/nova.conf.sample
 %config(noreplace) %{_sysconfdir}/nova/logging_sample.conf
 %config(noreplace) %{_sysconfdir}/nova/policy.json
-%dir %attr(0755, nova, root) %{_localstatedir}/log/nova
-%dir %attr(0755, nova, root) %{_localstatedir}/run/nova
-%dir %attr(0755, nova, root) %{_localstatedir}/lock/nova 
+%dir %{_localstatedir}/log/nova
+%dir %{_localstatedir}/run/nova
+%dir %{_localstatedir}/lock/nova
+
+%defattr(-,root,root,-)
 %{_bindir}/instance-usage-audit
 %{_bindir}/nova-console
 %{_bindir}/nova-consoleauth
@@ -580,7 +579,6 @@ fi
 
 %defattr(-,nova,nobody,-)
 %config(noreplace) %{_sysconfdir}/nova/api-paste.ini
-%config(noreplace) %{_sysconfdir}/nova/nova.conf
 #mv /usr/bin/nova{-api,}-metadata
 
 %files compute
