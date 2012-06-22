@@ -101,8 +101,6 @@ Requires:   %{name}-network = %{epoch}:%{version}-%{release}
 Requires:   %{name}-objectstore = %{epoch}:%{version}-%{release}
 Requires:   %{name}-scheduler = %{epoch}:%{version}-%{release}
 Requires:   %{name}-volume = %{epoch}:%{version}-%{release}
-Requires:   openstack-client-%{os_release} = %{epoch}:%{version}
-Requires:   openstack-glance-%{os_release} = %{epoch}:%{version}
 %if 0%{?with_doc}
 Requires:   %{name}-doc = %{epoch}:%{version}-%{release}
 %endif
