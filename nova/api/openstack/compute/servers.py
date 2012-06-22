@@ -936,7 +936,7 @@ class Controller(wsgi.Controller):
         # down to an id and use the default glance connection params
         image_uuid = image_href.split('/').pop()
 
-        if not utils.is_uuid_like(image_uuid):
+        if not utils.is_uuid_like(image_uuid) and not image_uuid.isdigit():
             msg = _("Invalid imageRef provided.")
             raise exc.HTTPBadRequest(explanation=msg)
 
