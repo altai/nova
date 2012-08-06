@@ -22,6 +22,7 @@ Source1:          %{short_name}-README.rhel6
 Source6:          %{short_name}.logrotate
 
 # Initscripts
+Source10:         %{prj}-consoleauth.init
 Source11:         %{prj}-api.init
 Source12:         %{prj}-compute.init
 Source13:         %{prj}-network.init
@@ -90,6 +91,7 @@ uses an LDAP server for users and groups, but also includes a fake LDAP server,
 that stores data in Redis. It has extensive test coverage, and uses the Sphinx
 toolkit (the same as Python itself) for code and user documentation.
 
+
 %package          node-full
 Summary:          OpenStack Nova full node installation
 Group:            Applications/System
@@ -109,6 +111,7 @@ Requires:   %{name}-doc = %{epoch}:%{version}-%{release}
 This package installs full set of OpenStack Nova packages and Cloud Controller
 configuration.
 
+
 %package          node-compute
 Summary:          OpenStack Nova compute node installation
 Group:            Applications/System
@@ -121,6 +124,7 @@ Requires:         MySQL-python
 %description      node-compute
 This package installs compute set of OpenStack Nova packages and Compute node
 configuration.
+
 
 %package -n       python-nova-%{os_release}
 Summary:          Nova Python libraries
@@ -181,6 +185,7 @@ protocol, and the Redis KVS.
 
 This package contains the %{name} Python library.
 
+
 %package          api
 Summary:          A nova API server
 Group:            Applications/System
@@ -195,6 +200,7 @@ the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
 protocol, and the Redis KVS.
 
 This package contains the %{name} API Server.
+
 
 %package          compute
 Summary:          A nova compute server
@@ -219,6 +225,7 @@ protocol, and the Redis KVS.
 
 This package contains the %{name} Compute Worker.
 
+
 %package          network
 Summary:          A nova network server
 Group:            Applications/System
@@ -234,8 +241,9 @@ protocol, and the Redis KVS.
 
 This package contains the %{name} Network Controller.
 
+
 %package          xvpvncproxy
-Summary:          A nova xvpvncproxy server
+Summary:          A nova XVP VNC console proxy server
 Group:            Applications/System
 
 Requires:   %{name} = %{epoch}:%{version}-%{release}
@@ -247,7 +255,24 @@ built to match the popular AWS EC2 and S3 APIs. It is written in Python, using
 the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
 protocol, and the Redis KVS.
 
-This package contains the %{name} VNC proxy.
+This package contains the %{name} XVP VNC console proxy server.
+
+
+%package          consoleauth
+Summary:          A nova console auth proxy server
+Group:            Applications/System
+
+Requires:   %{name} = %{epoch}:%{version}-%{release}
+Requires:         start-stop-daemon
+
+%description      consoleauth
+Nova is a cloud computing fabric controller (the main part of an IaaS system)
+built to match the popular AWS EC2 and S3 APIs. It is written in Python, using
+the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
+protocol, and the Redis KVS.
+
+This package contains the %{name} VNC console proxy server.
+
 
 %package          objectstore
 Summary:          A nova objectstore server
@@ -264,6 +289,7 @@ protocol, and the Redis KVS.
 
 This package contains the %{name} object store server.
 
+
 %package          scheduler
 Summary:          A nova scheduler server
 Group:            Applications/System
@@ -278,6 +304,7 @@ the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
 protocol, and the Redis KVS.
 
 This package contains the %{name} Scheduler.
+
 
 %package          volume
 Summary:          A nova volume server
@@ -295,6 +322,7 @@ protocol, and the Redis KVS.
 This package contains the %{name} Volume service.
 
 %if 0%{?with_doc}
+
 %package doc
 Summary:          Documentation for %{name}
 Group:            Documentation
@@ -353,16 +381,14 @@ install -d -m 755 %{buildroot}%{_localstatedir}/log/nova
 cp -rp nova/CA %{buildroot}%{_sharedstatedir}/nova
 
 # Install initscripts for Nova services
-install -p -D -m 755 %{SOURCE11} %{buildroot}%{_initrddir}/%{prj}-api
-install -p -D -m 755 %{SOURCE12} %{buildroot}%{_initrddir}/%{prj}-compute
-install -p -D -m 755 %{SOURCE13} %{buildroot}%{_initrddir}/%{prj}-network
-install -p -D -m 755 %{SOURCE14} %{buildroot}%{_initrddir}/%{prj}-objectstore
-install -p -D -m 755 %{SOURCE15} %{buildroot}%{_initrddir}/%{prj}-scheduler
-install -p -D -m 755 %{SOURCE16} %{buildroot}%{_initrddir}/%{prj}-volume
-install -p -D -m 755 %{SOURCE17} %{buildroot}%{_initrddir}/%{prj}-direct-api
-install -p -D -m 755 %{SOURCE19} %{buildroot}%{_initrddir}/%{prj}-xvpvncproxy
-install -p -D -m 755 %{SOURCE29} %{buildroot}%{_initrddir}/%{prj}-cert
-
+INIT_SOURCE_DIR="$(dirname %{SOURCE10})"
+INIT_SCRIPTS="
+    nova-compute nova-direct-api nova-objectstore nova-volume nova-api
+    nova-cert nova-consoleauth nova-network
+    nova-scheduler nova-xvpvncproxy"
+for i in $INIT_SCRIPTS; do
+    install -p -D -m 755 "${INIT_SOURCE_DIR}/${i}.init" %{buildroot}%{_initrddir}/$i
+done
 
 # Install sudoers
 install -p -D -m 440 %{SOURCE20} %{buildroot}%{_sysconfdir}/sudoers.d/%{name}
@@ -554,6 +580,11 @@ fi
 %{_initrddir}/%{prj}-xvpvncproxy
 #%doc %{_sharedstatedir}/nova/noVNC/LICENSE.txt
 #%doc %{_sharedstatedir}/nova/noVNC/README.md
+
+%files consoleauth
+%defattr(-,root,root,-)
+%{_bindir}/nova-consoleauth
+%{_initrddir}/%{prj}-consoleauth
 
 %files -n python-nova-%{os_release}
 %defattr(-,root,root,-)
