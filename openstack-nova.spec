@@ -8,7 +8,7 @@
 %endif
 
 Name:             %{short_name}-%{os_release}
-Version:          2012.1
+Version:          2012.1.2
 Release:          5
 Epoch:            1
 Summary:          OpenStack Compute (nova)
@@ -467,13 +467,11 @@ fi
 
 %preun compute
 if [ $1 -eq 0 ] ; then
-    /sbin/service %{prj}-ajax-console-proxy stop >/dev/null 2>&1
     /sbin/service %{prj}-compute stop >/dev/null 2>&1
 fi
 
 %postun compute
 if [ $1 -eq 1 ] ; then
-    /sbin/service %{prj}-ajax-console-proxy condrestart
     /sbin/service %{prj}-compute condrestart
 fi
 
@@ -590,7 +588,7 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{python_sitelib}/nova
-%{python_sitelib}/nova-%{version}-*.egg-info
+%{python_sitelib}/nova-%{version}*.egg-info
 
 %files api
 %defattr(-,root,root,-)
