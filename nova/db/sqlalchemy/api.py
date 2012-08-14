@@ -1910,9 +1910,7 @@ def network_delete_safe(context, network_id):
         session.query(models.FixedIp).\
                 filter_by(network_id=network_id).\
                 filter_by(deleted=False).\
-                update({'deleted': True,
-                        'updated_at': literal_column('updated_at'),
-                        'deleted_at': utils.utcnow()})
+                delete()
         session.delete(network_ref)
 
 
