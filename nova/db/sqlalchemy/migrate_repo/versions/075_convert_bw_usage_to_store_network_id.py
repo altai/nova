@@ -46,7 +46,7 @@ def upgrade(migrate_engine):
                 Column('last_refreshed', DateTime(timezone=False)),
                 Column('bw_in', BigInteger()),
                 Column('bw_out', BigInteger()),
-                useexisting=True)
+                extend_existing=True)
     mac_column = Column('mac', String(255))
     bw_usage_cache.create_column(mac_column)
 
@@ -81,7 +81,7 @@ def downgrade(migrate_engine):
                 Column('last_refreshed', DateTime(timezone=False)),
                 Column('bw_in', BigInteger()),
                 Column('bw_out', BigInteger()),
-                useexisting=True)
+                extend_existing=True)
 
     network_label_column = Column('network_label', String(255))
     bw_usage_cache.create_column(network_label_column)
