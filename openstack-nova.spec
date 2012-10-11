@@ -17,35 +17,9 @@ Group:            Development/Languages
 License:          ASL 2.0
 Vendor:           Grid Dynamics Consulting Services, Inc.
 URL:              http://openstack.org/projects/compute/
-Source0:          nova-%{version}.tar.gz  
-Source1:          %{short_name}-README.rhel6
-Source6:          %{short_name}.logrotate
+Source0:          %{name}-%{version}.tar.gz  
 
-# Initscripts
-Source10:         %{prj}-consoleauth.init
-Source11:         %{prj}-api.init
-Source12:         %{prj}-compute.init
-Source13:         %{prj}-network.init
-Source14:         %{prj}-objectstore.init
-Source15:         %{prj}-scheduler.init
-Source16:         %{prj}-volume.init
-Source17:         %{prj}-direct-api.init
-Source18:         %{prj}-ajax-console-proxy.init
-Source19:         %{prj}-xvpvncproxy.init
-
-Source20:         nova-sudoers
-Source21:         %{short_name}-polkit.pkla
-Source22:         %{short_name}-rhel-ifc-template
-Source23:         nova.conf
-Source25:         %{prj}-api-os-compute.init
-Source26:         %{prj}-api-os-volume.init
-#Source28:         api-paste.ini
-Source29:         %{prj}-cert.init
-
-Patch0001:        0001-fix-useexisting-deprecation-warnings.patch
-
-
-BuildRoot:        %{_tmppath}/nova-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot:        %{_tmppath}/nova-%{version}-%{release}-build
 
 BuildArch:        noarch
 BuildRequires:    python-devel
@@ -64,7 +38,7 @@ BuildRequires:    python-sqlalchemy
 BuildRequires:    python-tornado
 BuildRequires:    python-webob
 BuildRequires:    intltool
-BuildRequires:    python-distutils-extra >= 1:2.29
+BuildRequires:    python-distutils-extra >= 2.29
 
 Requires:         python-nova-%{os_release}  = %{epoch}:%{version}-%{release}
 Requires:         sudo
@@ -339,11 +313,9 @@ This package contains documentation files for %{name}.
 %endif
 
 %prep
-%setup -q -n nova-%{version}
+%setup -q
 
-%patch0001 -p1
-
-install %{SOURCE1} README.rhel6
+install redhat/openstack-nova-README.rhel6 README.rhel6
 
 %build
 %{__python} setup.py build
@@ -369,7 +341,7 @@ install -d -m 755 %{buildroot}%{_localstatedir}/run/nova
 install -d -m 755 %{buildroot}%{_localstatedir}/lock/nova
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/nova
-install -p -D -m 600 etc/nova/* %{SOURCE23} %{buildroot}%{_sysconfdir}/nova/
+install -p -D -m 600 etc/nova/* redhat/nova.conf %{buildroot}%{_sysconfdir}/nova/
 
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/images
@@ -381,20 +353,19 @@ install -d -m 755 %{buildroot}%{_localstatedir}/log/nova
 cp -rp nova/CA %{buildroot}%{_sharedstatedir}/nova
 
 # Install initscripts for Nova services
-INIT_SOURCE_DIR="$(dirname %{SOURCE10})"
 INIT_SCRIPTS="
     nova-compute nova-direct-api nova-objectstore nova-volume nova-api
     nova-cert nova-consoleauth nova-network
     nova-scheduler nova-xvpvncproxy"
 for i in $INIT_SCRIPTS; do
-    install -p -D -m 755 "${INIT_SOURCE_DIR}/${i}.init" %{buildroot}%{_initrddir}/$i
+    install -p -D -m 755 "redhat/${i}.init" %{buildroot}%{_initrddir}/$i
 done
 
 # Install sudoers
-install -p -D -m 440 %{SOURCE20} %{buildroot}%{_sysconfdir}/sudoers.d/%{name}
+install -p -D -m 440 redhat/nova-sudoers %{buildroot}%{_sysconfdir}/sudoers.d/%{name}
 
 # Install logrotate
-install -p -D -m 644 %{SOURCE6} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -p -D -m 644 redhat/openstack-nova.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 
 # Install template files
@@ -405,14 +376,14 @@ install -p -D -m 644 nova/virt/libvirt.xml.template %{buildroot}%{_datarootdir}/
 # Network configuration templates for injection engine
 install -d -m 755 %{buildroot}%{_datarootdir}/nova/interfaces
 #install -p -D -m 644 nova/virt/interfaces.template %{buildroot}%{_datarootdir}/nova/interfaces/interfaces.ubuntu.template
-install -p -D -m 644 %{SOURCE22} %{buildroot}%{_datarootdir}/nova/interfaces.template
+install -p -D -m 644 redhat/openstack-nova-rhel-ifc-template %{buildroot}%{_datarootdir}/nova/interfaces.template
 
 # Clean CA directory
 find %{buildroot}%{_sharedstatedir}/nova/CA -name .gitignore -delete
 find %{buildroot}%{_sharedstatedir}/nova/CA -name .placeholder -delete
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d
-install -p -D -m 644 %{SOURCE21} %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-%{short_name}.pkla
+install -p -D -m 644 redhat/openstack-nova-polkit.pkla %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-%{short_name}.pkla
 
 # Remove unneeded in production stuff
 rm -fr %{buildroot}%{python_sitelib}/run_tests.*
