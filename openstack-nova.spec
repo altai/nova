@@ -1,6 +1,7 @@
 %global prj nova
 %global with_doc 0
 %global os_release essex
+%global daemon_prefix nova
 
 %if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
@@ -25,16 +26,17 @@ BuildRequires:    python-devel
 BuildRequires:    python-setuptools
 BuildRequires:    intltool
 
-Requires(post):   chkconfig
-Requires(postun): initscripts
-Requires(preun):  chkconfig
-Requires(pre):    shadow-utils
-Requires:         python-%{prj} = %{epoch}:%{version}-%{release}
-Requires:         start-stop-daemon
+Requires:         %{name}-compute = %{epoch}:%{version}-%{release}
+Requires:         %{name}-cert = %{epoch}:%{version}-%{release}
+Requires:         %{name}-scheduler = %{epoch}:%{version}-%{release}
+Requires:         %{name}-volume = %{epoch}:%{version}-%{release}
+Requires:         %{name}-api = %{epoch}:%{version}-%{release}
+Requires:         %{name}-network = %{epoch}:%{version}-%{release}
+Requires:         %{name}-objectstore = %{epoch}:%{version}-%{release}
+Requires:         %{name}-console = %{epoch}:%{version}-%{release}
 
-Obsoletes:        %{name}-essex
+Obsoletes:        %{name}-essex-node-full
 
-Requires:         python-%{prj} = %{epoch}:%{version}-%{release}
 
 %description
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
@@ -52,13 +54,14 @@ toolkit (the same as Python itself) for code and user documentation.
 Summary:          OpenStack Nova full node installation
 Group:            Applications/System
 
-Requires:   %{name} = %{epoch}:%{version}-%{release}
-Requires:   %{name}-api = %{epoch}:%{version}-%{release}
-Requires:   %{name}-compute = %{epoch}:%{version}-%{release}
-Requires:   %{name}-network = %{epoch}:%{version}-%{release}
-Requires:   %{name}-objectstore = %{epoch}:%{version}-%{release}
-Requires:   %{name}-scheduler = %{epoch}:%{version}-%{release}
-Requires:   %{name}-volume = %{epoch}:%{version}-%{release}
+Requires:         %{name}-compute = %{epoch}:%{version}-%{release}
+Requires:         %{name}-cert = %{epoch}:%{version}-%{release}
+Requires:         %{name}-scheduler = %{epoch}:%{version}-%{release}
+Requires:         %{name}-volume = %{epoch}:%{version}-%{release}
+Requires:         %{name}-api = %{epoch}:%{version}-%{release}
+Requires:         %{name}-network = %{epoch}:%{version}-%{release}
+Requires:         %{name}-objectstore = %{epoch}:%{version}-%{release}
+Requires:         %{name}-console = %{epoch}:%{version}-%{release}
 
 Obsoletes:        %{name}-essex-node-full
 
@@ -71,10 +74,8 @@ configuration.
 Summary:          OpenStack Nova compute node installation
 Group:            Applications/System
 
-Requires:   %{name} = %{epoch}:%{version}-%{release}
 Requires:   %{name}-compute = %{epoch}:%{version}-%{release}
 Requires:   %{name}-network = %{epoch}:%{version}-%{release}
-Requires:         MySQL-python
 
 Obsoletes:        %{name}-essex-node-compute
 
@@ -87,7 +88,6 @@ configuration.
 Summary:          Components common to all OpenStack services
 Group:            Applications/System
 
-Requires:         openstack-utils
 Requires:         python-nova = %{epoch}:%{version}-%{release}
 
 Requires(post):   chkconfig
@@ -97,7 +97,9 @@ Requires(pre):    shadow-utils
 
 Requires:         python-setuptools
 
-Obsoletes:        %{name}-essex-common
+Requires:         start-stop-daemon
+
+Obsoletes:        %{name}-essex
 
 %description common
 OpenStack Compute (codename Nova) is open source software designed to
@@ -116,7 +118,7 @@ between all the OpenStack nova services.
 Summary:          OpenStack Nova Virtual Machine control service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 Requires:         curl
 Requires:         iscsi-initiator-utils
 Requires:         iptables iptables-ipv6
@@ -149,7 +151,7 @@ This package contains the Nova service for controlling Virtual Machines.
 Summary:          OpenStack Nova Network control service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 Requires:         vconfig
 Requires:         radvd
 Requires:         bridge-utils
@@ -177,7 +179,7 @@ This package contains the Nova service for controlling networking.
 Summary:          OpenStack Nova storage volume control service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 Requires:         lvm2
 Requires:         scsi-target-utils
 
@@ -200,7 +202,7 @@ This package contains the Nova service for controlling storage volumes.
 Summary:          OpenStack Nova VM distribution service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 
 Obsoletes:        %{name}-essex-scheduler
 
@@ -222,7 +224,7 @@ to run Virtual Machines in the cloud.
 Summary:          OpenStack Nova certificate management service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 
 Obsoletes:        %{name}-essex-cert
 
@@ -243,7 +245,7 @@ This package contains the Nova service for managing certificates.
 Summary:          OpenStack Nova API services
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 
 Obsoletes:        %{name}-essex-api
 
@@ -264,7 +266,7 @@ This package contains the Nova services providing programmatic access.
 Summary:          OpenStack Nova simple object store service
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 
 Obsoletes:        %{name}-essex-objectstore
 
@@ -285,9 +287,10 @@ This package contains the Nova service providing a simple object store.
 Summary:          OpenStack Nova console access services
 Group:            Applications/System
 
-Requires:         openstack-nova-common = %{epoch}:%{version}-%{release}
+Requires:         %{name}-common = %{epoch}:%{version}-%{release}
 
-Obsoletes:        %{name}-essex-console
+Obsoletes:        %{name}-essex-consoleauth
+Obsoletes:        %{name}-essex-xvpvncproxy
 
 %description console
 OpenStack Compute (codename Nova) is open source software designed to
@@ -315,37 +318,43 @@ Requires:         MySQL-python
 Requires:         python-crypto
 Requires:         python-paramiko
 
-Requires:         python-qpid
 Requires:         python-kombu
 Requires:         python-amqplib
 
-
-Requires:         python-sqlalchemy>=0.7.3
-Requires:         python-cheetah==2.4.4
-Requires:         python-amqplib==0.6.1
-Requires:         python-anyjson==0.2.4
-Requires:         python-boto==2.1.1
-Requires:         python-carrot==0.10.5
+Requires:         python-sqlalchemy >= 0.7.3
+Requires:         python-cheetah
+# = 2.4.4
+Requires:         python-amqplib = 0.6.1
+Requires:         python-anyjson >= 0.2.4
+# = 0.2.4
+Requires:         python-boto >= 2.1.1
+# = 2.1.1
+Requires:         python-carrot >= 0.10.5
+# = 0.10.5
 Requires:         python-eventlet
-Requires:         python-kombu==1.0.4
-Requires:         python-lockfile==0.8
-Requires:         python-lxml==2.3
-Requires:         python-daemon==1.5.5
-Requires:         python-gflags==1.3
+Requires:         python-kombu >= 1.0.4
+#= 1.0.4
+Requires:         python-lockfile = 0.8
+Requires:         python-lxml 
+#= 2.3
+Requires:         python-daemon = 1.5.5
+Requires:         python-gflags >= 1.3
+# = 1.3
 Requires:         python-novaclient
-Requires:         python-routes==1.12.3
-Requires:         python-webob==1.0.8
-Requires:         python-greenlet>=0.3.1
-Requires:         python-paste-deploy==1.5.0
+Requires:         python-routes = 1.12.3
+Requires:         python-webob = 1.0.8
+Requires:         python-greenlet >= 0.3.1
+Requires:         python-paste-deploy = 1.5.0
 Requires:         python-paste
-Requires:         python-migrate>=0.7.2
+Requires:         python-migrate >= 0.7.2
 Requires:         python-netaddr
-Requires:         python-glance>=2011.3.1
-Requires:         python-suds==0.4
+Requires:         python-glance >= 2011.3.1
+Requires:         python-suds >= 0.4
+# = 0.4
 Requires:         python-paramiko
-Requires:         python-feedparser
+#Requires:         python-feedparser
 Requires:         python-pycrypto
-Requires:         python-iso8601>=0.1.4
+Requires:         python-iso8601 >= 0.1.4
 
 
 Obsoletes:        python-nova-essex
@@ -411,6 +420,7 @@ install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/keys
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/networks
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/tmp
 install -d -m 755 %{buildroot}%{_localstatedir}/log/nova
+install -d -m 755 %{buildroot}%{_localstatedir}/lock/nova
 
 # Setup ghost CA cert
 install -d -m 755 %{buildroot}%{_sharedstatedir}/nova/CA
@@ -502,81 +512,84 @@ if getent group fuse >/dev/null; then
 fi
 exit 0
 
+# disable daemon autostart
+%if 0
 %post compute
-/sbin/chkconfig --add openstack-nova-compute
+/sbin/chkconfig --add %{daemon_prefix}-compute
 %post network
-/sbin/chkconfig --add openstack-nova-network
+/sbin/chkconfig --add %{daemon_prefix}-network
 %post volume
-/sbin/chkconfig --add openstack-nova-volume
+/sbin/chkconfig --add %{daemon_prefix}-volume
 %post scheduler
-/sbin/chkconfig --add openstack-nova-scheduler
+/sbin/chkconfig --add %{daemon_prefix}-scheduler
 %post cert
-/sbin/chkconfig --add openstack-nova-cert
+/sbin/chkconfig --add %{daemon_prefix}-cert
 %post api
 for svc in api direct-api metadata-api; do
-    /sbin/chkconfig --add openstack-nova-$svc
+    /sbin/chkconfig --add %{daemon_prefix}-$svc
 done
 %post objectstore
-/sbin/chkconfig --add openstack-nova-objectstore
+/sbin/chkconfig --add %{daemon_prefix}-objectstore
 %post console
 for svc in console consoleauth xvpvncproxy; do
-    /sbin/chkconfig --add openstack-nova-$svc
+    /sbin/chkconfig --add %{daemon_prefix}-$svc
 done
+%endif
 
 %preun compute
 if [ $1 -eq 0 ] ; then
     for svc in compute; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun network
 if [ $1 -eq 0 ] ; then
     for svc in network; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun volume
 if [ $1 -eq 0 ] ; then
     for svc in volume; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun scheduler
 if [ $1 -eq 0 ] ; then
     for svc in scheduler; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun cert
 if [ $1 -eq 0 ] ; then
     for svc in cert; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun api
 if [ $1 -eq 0 ] ; then
     for svc in api direct-api metadata-api; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun objectstore
 if [ $1 -eq 0 ] ; then
     for svc in objectstore; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 %preun console
 if [ $1 -eq 0 ] ; then
     for svc in console consoleauth xvpvncproxy; do
-        /sbin/service openstack-nova-${svc} stop >/dev/null 2>&1
-        /sbin/chkconfig --del openstack-nova-${svc}
+        /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
+        /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
 fi
 
@@ -584,56 +597,56 @@ fi
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in compute; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun network
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in network; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun volume
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in volume; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun scheduler
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in scheduler; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun cert
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in cert; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun api
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in api direct-api metadata-api; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun objectstore
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in objectstore; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 %postun console
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     for svc in console consoleauth xvpvncproxy; do
-        /sbin/service openstack-nova-${svc} condrestart > /dev/null 2>&1 || :
+        /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
 
@@ -652,6 +665,7 @@ fi
 %config(noreplace) %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-nova.pkla
 
 %dir %attr(0755, nova, root) %{_localstatedir}/log/nova
+%dir %attr(0755, nova, root) %{_localstatedir}/lock/nova
 %dir %attr(0755, nova, root) %{_localstatedir}/run/nova
 
 %{_bindir}/nova-stack
