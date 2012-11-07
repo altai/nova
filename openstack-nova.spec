@@ -9,7 +9,7 @@
 
 Name:             openstack-nova
 Version:          2012.1.2
-Release:          5
+Release:          6
 Epoch:            1
 Summary:          OpenStack Compute (nova)
 
@@ -157,6 +157,7 @@ Requires:         radvd
 Requires:         bridge-utils
 #TODO: Enable when available in RHEL 6.3
 #Requires:         dnsmasq-utils
+Requires:         dnsmasq
 # tunctl is needed where `ip tuntap` is not available
 Requires:         tunctl
 
@@ -760,6 +761,9 @@ fi
 %files node-compute
 
 %changelog
+* Fri Dec 20 2011 Ivan A. Melnikov <imelnikov@griddynamics.com> - 2012.1.2-6
+- Make openstack-nova-network require dnsmasq (fixes: altai-29)
+
 * Fri Dec 20 2011 Boris Filippov <bfilippov@griddynamics.com> - 2011.3
 - Obsolete nova-cc-config
 - Add nova.conf to compute package 
