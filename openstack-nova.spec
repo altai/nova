@@ -97,6 +97,7 @@ Requires(pre):    shadow-utils
 
 Requires:         python-setuptools
 
+Requires:         bridge-utils
 Requires:         start-stop-daemon
 
 Obsoletes:        %{name}-essex
