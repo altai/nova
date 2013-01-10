@@ -659,7 +659,7 @@ def kill_dhcp(dev):
 #           configuration options (like dchp-range, vlan, ...)
 #           aren't reloaded.
 @utils.synchronized('dnsmasq_start')
-def restart_dhcp(context, dev, network_ref):
+def restart_dhcp(context, dev, network_ref, dhcp_domain=None):
     """(Re)starts a dnsmasq server for a given network.
 
     If a dnsmasq instance is already running then send a HUP
@@ -667,6 +667,9 @@ def restart_dhcp(context, dev, network_ref):
 
     """
     conffile = _dhcp_file(dev, 'conf')
+
+    if dhcp_domain is None:
+        dhcp_domain = FLAGS.dhcp_domain
 
     if FLAGS.use_single_default_gateway:
         # NOTE(vish): this will have serious performance implications if we
@@ -702,7 +705,7 @@ def restart_dhcp(context, dev, network_ref):
            '--strict-order',
            '--bind-interfaces',
            '--conf-file=%s' % FLAGS.dnsmasq_config_file,
-           '--domain=%s' % FLAGS.dhcp_domain,
+           '--domain=%s' % dhcp_domain,
            '--pid-file=%s' % _dhcp_file(dev, 'pid'),
            '--listen-address=%s' % network_ref['dhcp_server'],
            '--except-interface=lo',
