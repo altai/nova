@@ -256,8 +256,9 @@ class API(BaseAPI):
 
         block_device_mapping = block_device_mapping or []
 
-        num_instances = quota.allowed_instances(context, max_count,
-                                                instance_type)
+        allotment = quota.allowed_instances_verbose(context, max_count,
+                                                    instance_type)
+        num_instances = allotment['instances']
         if num_instances < min_count:
             pid = context.project_id
             if num_instances <= 0:
@@ -267,7 +268,14 @@ class API(BaseAPI):
                        num_instances)
             LOG.warn(_("Quota exceeded for %(pid)s,"
                   " tried to run %(min_count)s instances. " + msg) % locals())
-            raise exception.QuotaError(code="InstanceLimitExceeded")
+            reason = ('quota name: %(quota_name)s, '
+                      'used %(used)s of %(quota)s, '
+                      'needed %(requested)s') % allotment
+            exc = exception.QuotaError(code="InstanceLimitExceeded")
+            # NOTE(imelnikov): setting message in constructor is useless
+            exc.message = '%s: %s %s' % (_("Quota exceeded"),
+                                         reason, '(code=%(code)s)')
+            raise exc
 
         self._check_metadata_properties_quota(context, metadata)
         self._check_injected_file_quota(context, injected_files)

@@ -103,8 +103,18 @@ def _get_request_allotment(requested, used, quota):
     return quota - used
 
 
-def allowed_instances(context, requested_instances, instance_type):
-    """Check quota and return min(requested_instances, allowed_instances)."""
+def _get_request_allotment_dict(requested, used, data, name):
+    quota = data.get(name)
+    return {
+        'allowed': _get_request_allotment(requested, used, quota),
+        'used': used,
+        'quota': quota,
+        'requested': requested,
+        'quota_name': name
+    }
+
+
+def allowed_instances_verbose(context, requested_instances, instance_type):
     project_id = context.project_id
     context = context.elevated()
     requested_cores = requested_instances * instance_type['vcpus']
@@ -112,20 +122,41 @@ def allowed_instances(context, requested_instances, instance_type):
     usage = db.instance_data_get_for_project(context, project_id)
     used_instances, used_cores, used_ram = usage
     quota = get_project_quotas(context, project_id)
-    allowed_instances = _get_request_allotment(requested_instances,
-                                               used_instances,
-                                               quota['instances'])
-    allowed_cores = _get_request_allotment(requested_cores, used_cores,
-                                           quota['cores'])
-    allowed_ram = _get_request_allotment(requested_ram, used_ram, quota['ram'])
-    if instance_type['vcpus']:
-        allowed_instances = min(allowed_instances,
-                                allowed_cores // instance_type['vcpus'])
-    if instance_type['memory_mb']:
-        allowed_instances = min(allowed_instances,
-                                allowed_ram // instance_type['memory_mb'])
 
-    return min(requested_instances, allowed_instances)
+    allotment = _get_request_allotment_dict(requested_instances,
+                                            used_instances,
+                                            quota, 'instances')
+    allotment['instances'] = allotment['allowed']
+
+
+    if instance_type['vcpus']:
+        cores_allotment = _get_request_allotment_dict(requested_cores,
+                                                      used_cores,
+                                                      quota, 'cores')
+        allowed = cores_allotment['allowed'] // instance_type['vcpus']
+        if allowed < allotment['instances']:
+            allotment = cores_allotment
+            allotment['instances'] = allowed
+
+    if instance_type['memory_mb']:
+        ram_allotment = _get_request_allotment_dict(requested_ram,
+                                                    used_ram,
+                                                    quota, 'ram')
+        allowed = ram_allotment['allowed'] // instance_type['memory_mb']
+        if allowed < allotment['instances']:
+            allotment = cores_allotment
+            allotment['instances'] = allowed
+
+    allotment['instances'] = min(requested_instances, allotment['instances'])
+    return allotment
+
+
+def allowed_instances(context, requested_instances, instance_type):
+    """Check quota and return min(requested_instances, allowed_instances)."""
+    allotment = allowed_instances_verbose(context,
+                                          requested_instances,
+                                          instance_type)
+    return allotment['instances']
 
 
 def allowed_volumes(context, requested_volumes, size):
