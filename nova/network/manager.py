@@ -231,7 +231,7 @@ class RPCAllocateFixedIP(object):
 
         # NOTE(vish): if we are not multi_host pass to the network host
         # NOTE(tr3buchet): but if we are, host came from instance['host']
-        if not network['multi_host']:
+        if not network['multi_host'] and network['host'] is not None:
             host = network['host']
         if host != self.host:
             # need to call deallocate_fixed_ip on correct network host
