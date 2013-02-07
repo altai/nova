@@ -1,5 +1,4 @@
 %global prj nova
-%global with_doc 0
 %global os_release essex
 %global daemon_prefix nova
 
@@ -375,7 +374,7 @@ This package contains the %{name} Python library.
 Summary:          Documentation for %{name}
 Group:            Documentation
 
-BuildRequires:    python-sphinx
+BuildRequires:    python-sphinx10
 
 %description      doc
 Nova is a cloud computing fabric controller (the main part of an IaaS system)
@@ -399,13 +398,10 @@ rm -rf %{buildroot}
 %{__python} setup.py install -O1 --skip-build --root %{buildroot}
 
 %if 0%{?with_doc}
-export PYTHONPATH="$( pwd ):$PYTHONPATH"
-pushd doc
-sphinx-build -b html source build/html
-popd
+make -C doc html PYTHONPATH=%{buildroot}%{python_sitelib} SPHINXBUILD=sphinx-1.0-build SPHINX_DEBUG=1
 
 # Fix hidden-file-or-dir warnings
-rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
+rm -fr doc/build/html/.buildinfo
 %endif
 
 # Give stack, instance-usage-audit and clear_rabbit_queues a reasonable prefix
@@ -653,7 +649,7 @@ if [ $1 -ge 1 ] ; then
 fi
 
 %files
-%doc LICENSE
+%doc README* LICENSE HACKING*
 %{_bindir}/nova-all
 
 %files common
