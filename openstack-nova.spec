@@ -6,6 +6,9 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %endif
 
+
+%define api_services nova-api nova-api-ec2 nova-api-metadata nova-api-os-compute nova-api-os-volume nova-direct-api
+
 Name:             openstack-nova
 Version:          2012.1.2
 Release:          6
@@ -437,12 +440,8 @@ install -p -D -m 640 etc/nova/policy.json %{buildroot}%{_sysconfdir}/nova/policy
 install -p -D -m 640 redhat/nova.conf %{buildroot}%{_sysconfdir}/nova/nova.conf
 
 # Install initscripts for Nova services
-INIT_SCRIPTS="
-    nova-compute nova-direct-api nova-objectstore nova-volume nova-api
-    nova-cert nova-consoleauth nova-network
-    nova-scheduler nova-xvpvncproxy"
-for i in $INIT_SCRIPTS; do
-    install -p -D -m 755 "redhat/${i}.init" %{buildroot}%{_initrddir}/$i
+for i in redhat/*.init; do
+    install -p -D -m 755 $i %{buildroot}%{_initrddir}/$(basename ${i%.init})
 done
 
 # Install sudoers
@@ -523,7 +522,7 @@ exit 0
 %post cert
 /sbin/chkconfig --add %{daemon_prefix}-cert
 %post api
-for svc in api direct-api metadata-api; do
+for svc in %{api_services}; do
     /sbin/chkconfig --add %{daemon_prefix}-$svc
 done
 %post objectstore
@@ -571,7 +570,7 @@ if [ $1 -eq 0 ] ; then
 fi
 %preun api
 if [ $1 -eq 0 ] ; then
-    for svc in api direct-api metadata-api; do
+    for svc in %{api_services}; do
         /sbin/service %{daemon_prefix}-${svc} stop >/dev/null 2>&1
         /sbin/chkconfig --del %{daemon_prefix}-${svc}
     done
@@ -629,7 +628,7 @@ fi
 %postun api
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
-    for svc in api direct-api metadata-api; do
+    for svc in %{api_services}; do
         /sbin/service %{daemon_prefix}-${svc} condrestart > /dev/null 2>&1 || :
     done
 fi
@@ -725,9 +724,8 @@ fi
 %ghost %config(missingok,noreplace) %verify(not md5 size mtime) %{_sharedstatedir}/nova/CA/private/cakey.pem
 
 %files api
-%{_bindir}/nova-api*
-%{_bindir}/nova-direct-api
-%{_initrddir}/nova-*api
+%{_bindir}/nova-*api*
+%{_initrddir}/nova-*api*
 
 %files objectstore
 %{_bindir}/nova-objectstore
