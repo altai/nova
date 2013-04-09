@@ -147,6 +147,9 @@
             <mac address='${nic.mac_address}'/>
 #if $getVar('use_virtio_for_bridges', True)
             <model type='virtio'/>
+            <!-- NOTE(imelnikov): force driver to qemu to avoid problems
+                 with broken dhcp clients in instances (altai-15) -->
+            <driver name='qemu'/>
 #end if
             <filterref filter="nova-instance-${name}-${nic.id}">
                 <parameter name="IP" value="${nic.ip_address}" />
