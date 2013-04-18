@@ -1283,7 +1283,12 @@ class ComputeManager(manager.SchedulerDependentManager):
         self._notify_about_instance_usage(instance_ref, "resize.prep.start")
 
         same_host = instance_ref['host'] == FLAGS.host
-        if same_host and not FLAGS.allow_resize_to_same_host:
+        if FLAGS.force_resize_to_same_host:
+            if not same_host:
+                self._set_instance_error_state(context, instance_uuid)
+                msg = _('destination not same as source!')
+                raise exception.MigrationError(msg)
+        elif same_host and not FLAGS.allow_resize_to_same_host:
             self._set_instance_error_state(context, instance_uuid)
             msg = _('destination same as source!')
             raise exception.MigrationError(msg)

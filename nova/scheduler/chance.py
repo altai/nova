@@ -36,6 +36,9 @@ class ChanceScheduler(driver.Scheduler):
         filter_properties = kwargs.get('filter_properties', {})
         ignore_hosts = filter_properties.get('ignore_hosts', [])
         hosts = [host for host in hosts if host not in ignore_hosts]
+        force_hosts = filter_properties.get('force_hosts', [])
+        if force_hosts:
+            hosts = [host for host in hosts if host not in force_hosts]
         return hosts
 
     def _schedule(self, context, topic, request_spec, **kwargs):

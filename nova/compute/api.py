@@ -1403,7 +1403,9 @@ class API(BaseAPI):
 
         filter_properties = {'ignore_hosts': []}
 
-        if not FLAGS.allow_resize_to_same_host:
+        if FLAGS.force_resize_to_same_host:
+            filter_properties['force_hosts'] = [instance['host']]
+        elif not FLAGS.allow_resize_to_same_host:
             filter_properties['ignore_hosts'].append(instance['host'])
 
         args = {

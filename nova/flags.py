@@ -425,6 +425,10 @@ global_opts = [
                 default=False,
                 help='Allow destination machine to match source for resize. '
                      'Useful when testing in single-host environments.'),
+    cfg.BoolOpt('force_resize_to_same_host',
+                default=False,
+                help='Force destination machine to match source for resize. '
+                     'Implies allow_resize_to_same_host.'),
     cfg.StrOpt('stub_network',
                default=False,
                help='Stub network related code'),
