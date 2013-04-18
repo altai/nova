@@ -438,6 +438,10 @@ def init_host(ip_range=None):
     # SNAT rule for outbound traffic.
     if not ip_range:
         ip_range = FLAGS.fixed_range
+    if not ip_range:
+        # NOTE(imelnikov): fixed_range can be explicitly set to empty string
+        # in nova.conf if following rules make no sense in particular setup
+        return
 
     add_snat_rule(ip_range)
 
